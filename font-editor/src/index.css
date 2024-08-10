@@ -1,0 +1,42 @@
+body {
+  font-family: Arial, sans-serif;
+}
+.mainHeading{
+  font-size: 54px;
+  font-weight: bold;
+  text-align: center;
+  color: #c4c7c5;
+  background:-webkit-linear-gradient(360deg, #0062ff, #ff5546);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.toolbar {
+  width: 98%;
+  margin: auto;
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 10px 0px;
+  box-shadow: rgba(83, 97, 255, 0.591) 0px 5px 15px;
+  border-radius: 8px;
+}
+.parentEditor-container{
+  width: 90%;
+  height: 70vh;
+  margin: 30px auto;
+  padding: 8px;
+  display: grid;
+  place-items: center;
+  border-radius: 24px;
+  background:-webkit-linear-gradient(75deg, #4b90ff, #ff5546, #7bfe7d, #ffff2e);
+}
+.editor-container{
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  background-color: white;
+}
