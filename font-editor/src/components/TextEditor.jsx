@@ -1,10 +1,9 @@
-// src/TextEditor.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Modal, Button, Dropdown } from "react-bootstrap";
 import { Rnd } from "react-rnd";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FaBold, FaItalic, FaUndo, FaRedo } from "react-icons/fa";
+import { FaBold, FaItalic, FaUndo, FaRedo, FaTrash } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const TextEditor = () => {
@@ -14,6 +13,7 @@ const TextEditor = () => {
   const [selectedElementIndex, setSelectedElementIndex] = useState(null);
   const [history, setHistory] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
+  const containerRef = useRef(null);
 
   const handleTextChange = (e) => {
     setText(e.target.value);
@@ -78,14 +78,14 @@ const TextEditor = () => {
   };
 
   const changeTextColor = (color) => updateSelectedElementStyle({ color });
-  const changeFontFamily = (fontFamily) =>{
-    updateSelectedElementStyle({ fontFamily })
-    toast(`Font Style Updated ${fontFamily}`)
-};
+  const changeFontFamily = (fontFamily) => {
+    updateSelectedElementStyle({ fontFamily });
+    toast(`Font Style Updated ${fontFamily}`);
+  };
   const changeFontSize = (fontSize) => {
-    updateSelectedElementStyle({ fontSize })
-    toast(`Font Size Updated ${fontSize}`)
-};
+    updateSelectedElementStyle({ fontSize });
+    toast(`Font Size Updated ${fontSize}`);
+  };
   const toggleBold = () =>
     updateSelectedElementStyle({
       fontWeight:
@@ -115,13 +115,35 @@ const TextEditor = () => {
           : "lowercase",
     });
 
+  const deleteElement = () => {
+    if (selectedElementIndex !== null) {
+      const updatedElements = elements.filter((_, index) => index !== selectedElementIndex);
+      setElements(updatedElements);
+      setSelectedElementIndex(null);
+      saveState(updatedElements);
+    }
+  };
+
+  const handleClickOutside = (e) => {
+    if (containerRef.current && !containerRef.current.contains(e.target)) {
+      setSelectedElementIndex(null);
+    }
+  };
+
   useEffect(() => {
     saveState();
   }, [text]);
 
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div>
-        <ToastContainer/>
+    <div ref={containerRef}>
+      <ToastContainer />
       <div className="toolbar">
         <Button onClick={undo}>
           <FaUndo />
@@ -144,7 +166,9 @@ const TextEditor = () => {
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <Dropdown.Item eventKey="Arial">Arial</Dropdown.Item>
-            <Dropdown.Item eventKey="Times New Roman">Times New Roman</Dropdown.Item>
+            <Dropdown.Item eventKey="Times New Roman">
+              Times New Roman
+            </Dropdown.Item>
             <Dropdown.Item eventKey="Courier New">Courier New</Dropdown.Item>
             <Dropdown.Item eventKey="Gill Sans">Gill Sans</Dropdown.Item>
             <Dropdown.Item eventKey="sans-serif">Sans-Serif</Dropdown.Item>
@@ -163,7 +187,10 @@ const TextEditor = () => {
             <Dropdown.Item eventKey="20px">20px</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
-        <input type="color" onChange={(e) => changeTextColor(e.target.value)} />
+        <input
+          type="color"
+          onChange={(e) => changeTextColor(e.target.value)}
+        />
       </div>
       <div className="parentEditor-container">
         <div className="editor-container">
@@ -198,14 +225,37 @@ const TextEditor = () => {
                 setElements(updatedElements);
                 saveState(updatedElements);
               }}
+              enableUserSelectHack={false}
             >
               <div
-                style={element.styles}
+                style={{ ...element.styles, position: 'relative' }}
                 onClick={() => setSelectedElementIndex(index)}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  setSelectedElementIndex(index);
+                }}
                 contentEditable
                 suppressContentEditableWarning
               >
                 {element.text}
+                {selectedElementIndex === index && (
+                  <Button
+                    variant="danger"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteElement();
+                    }}
+                    onTouchStart={(e) => e.stopPropagation()} // Ensure touch events don't interfere
+                    style={{
+                      position: 'absolute',
+                      top: -35,
+                      right: -40,
+                      zIndex: 10,
+                    }}
+                  >
+                    <FaTrash />
+                  </Button>
+                )}
               </div>
             </Rnd>
           ))}

@@ -40,3 +40,12 @@ body {
   border-radius: 16px;
   background-color: white;
 }
+.editable-text {
+  cursor: text;
+  border: 1px solid red;
+  user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  -moz-user-select: text;
+  touch-action: manipulation;
+}
